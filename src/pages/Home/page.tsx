@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import Header from '../../components/Header';
 import Product from '../../components/Product';
 import Cart from '../../components/Cart';
 import { mockRestaurantes } from '../../mocks/restaurantes';
