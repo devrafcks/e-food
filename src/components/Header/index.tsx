@@ -10,7 +10,9 @@ const colors = {
 };
 
 const HeaderContainer = styled.header`
-  background-color: ${colors.background};
+  background-image: url('/Hero.png'); 
+  background-size: cover;
+  background-repeat: no-repeat;
   padding: 40px 0;
   display: flex;
   justify-content: center;
@@ -34,7 +36,7 @@ const StyledLink = styled(Link)`
 `;
 
 const Logo = styled.img`
-  height: 58px; // Tamanho aproximado do logo da imagem
+  height: 58px; 
 `;
 
 const CartInfo = styled.button`
