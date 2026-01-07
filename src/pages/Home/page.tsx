@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import Product from '../../components/Product';
 import Cart from '../../components/Cart';
 import Footer from '../../components/Footer';
-import { mockRestaurantes } from '../../mocks/restaurantes';
 import type { Restaurante } from '../../types';
 
 const colors = {
@@ -26,7 +25,7 @@ const HeroContainer = styled.header`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px 0 24px 0;
+  padding: 40px 0;
   box-sizing: border-box;
 `;
 
@@ -60,11 +59,27 @@ const ListContainer = styled.main`
   }
 `;
 
+const LoadingText = styled.h2`
+  text-align: center;
+  color: ${colors.primary};
+  margin-top: 40px;
+`;
+
 export default function Home() {
   const [restaurantes, setRestaurantes] = useState<Restaurante[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setRestaurantes(mockRestaurantes);
+    fetch('https://api-ebac.vercel.app/api/efood/restaurantes')
+      .then((res) => res.json())
+      .then((data) => {
+        setRestaurantes(data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error("Erro ao carregar restaurantes:", err);
+        setIsLoading(false);
+      });
   }, []);
 
   return (
@@ -76,11 +91,16 @@ export default function Home() {
         </HeroTitle>
       </HeroContainer>
 
-      <ListContainer>
-        {restaurantes.map((res) => (
-          <Product key={res.id} {...res} />
-        ))}
-      </ListContainer>
+      {isLoading ? (
+        <LoadingText>Carregando restaurantes...</LoadingText>
+      ) : (
+        <ListContainer>
+          {restaurantes.map((res) => (
+            <Product key={res.id} {...res} />
+          ))}
+        </ListContainer>
+      )}
+      
       <Cart />
       <Footer />
     </PageWrapper>

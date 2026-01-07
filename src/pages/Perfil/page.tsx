@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import Header from '../../components/Header';
 import Modal from '../../components/Modal';
 import Footer from '../../components/Footer';
-import { mockRestaurantes } from '../../mocks/restaurantes';
 import { type Restaurante, type CardapioItem } from '../../types';
 
 const colors = {
@@ -95,24 +94,32 @@ export default function Perfil() {
   const { id } = useParams<{ id: string }>();
   const [restaurante, setRestaurante] = useState<Restaurante | null>(null);
   const [selectedItem, setSelectedItem] = useState<CardapioItem | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const found = mockRestaurantes.find((r) => r.id === Number(id));
-    if (found) setRestaurante(found);
+    fetch('https://api-ebac.vercel.app/api/efood/restaurantes')
+      .then((res) => res.json())
+      .then((data: Restaurante[]) => {
+        const found = data.find((r) => r.id === Number(id));
+        if (found) {
+          setRestaurante(found);
+        }
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error("Erro ao carregar dados:", err);
+        setIsLoading(false);
+      });
   }, [id]);
 
-  if (!restaurante)
+  if (isLoading)
     return (
-      <div
-        style={{
-          background: colors.background,
-          height: '100vh',
-          color: colors.primary
-        }}
-      >
-        Carregando...
+      <div style={{ background: colors.background, height: '100vh', color: colors.primary, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <h2>Carregando cardápio...</h2>
       </div>
     );
+
+  if (!restaurante) return <h2>Restaurante não encontrado.</h2>;
 
   return (
     <div style={{ backgroundColor: colors.background, minHeight: '100vh' }}>
@@ -129,13 +136,15 @@ export default function Perfil() {
           <CardPrato key={prato.id} onClick={() => setSelectedItem(prato)}>
             <img src={prato.foto} alt={prato.nome} />
             <h3>{prato.nome}</h3>
-            <p>{prato.descricao.substring(0, 110)}...</p>
-            <button>Adicionar ao carrinho</button>
+            <p>{prato.descricao.substring(0, 150)}...</p>
+            <button>Mais detalhes</button>
           </CardPrato>
         ))}
       </MenuGrid>
 
-      <Modal item={selectedItem} onClose={() => setSelectedItem(null)} />
+      {selectedItem && (
+        <Modal item={selectedItem} onClose={() => setSelectedItem(null)} />
+      )}
       <Footer />
     </div>
   );
